@@ -6,7 +6,7 @@ import {
   UpdateDateColumn,
   OneToMany
 } from "typeorm";
-// 解決循環依賴問題 - 使用類型導入而不是值導入
+
 import type { Checkin } from "./Checkin";
 
 @Entity("users")

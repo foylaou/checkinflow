@@ -9,6 +9,12 @@ import * as dotenv from "dotenv";
 
 // ✅ 載入 .env.local（會自動 fallback 到 .env）
 dotenv.config({ path: ".env.local" }); // 可省略 path 預設也會讀取
+
+console.log("📦 TypeORM 設定：", {
+  host: process.env.DB_HOST,
+  database: process.env.DB_DATABASE,
+  entities: [Event.name, User.name, Admin.name,Checkin.name]
+});
 export const AppDataSource = new DataSource({
   type: "mssql",
   host: process.env.DB_HOST || "localhost",
@@ -17,7 +23,7 @@ export const AppDataSource = new DataSource({
   password: process.env.DB_PASSWORD || "YourStrongPassword",
   database: process.env.DB_DATABASE || "checkinflow",
   synchronize: process.env.NODE_ENV !== "production", // 開發環境自動同步資料庫結構
-  // logging: process.env.NODE_ENV !== "production",
+  logging: process.env.NODE_ENV !== "production",
   entities: [Event, User, Admin, Checkin],
   options: {
     encrypt: true,                    // ✅ MSSQL 預設為加密，仍需保留

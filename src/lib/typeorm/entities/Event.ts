@@ -7,9 +7,9 @@ import {
   OneToMany,
   ManyToOne
 } from "typeorm";
-import { Generated } from "typeorm";
+
 import type { Checkin } from "./Checkin";
-import type { Admin } from "./Admin";
+import { Admin } from "./Admin";
 
 @Entity("events")
 export class Event {
@@ -59,6 +59,6 @@ export class Event {
   @OneToMany("Checkin", (checkin: Checkin) => checkin.event)
   checkins!: Checkin[];
 
-  @ManyToOne("Admin", (admin: Admin) => admin.events)
+  @ManyToOne(() => Admin, (admin) => admin.events)
   admin!: Admin;
 }

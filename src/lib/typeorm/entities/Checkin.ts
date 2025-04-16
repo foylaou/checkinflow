@@ -8,8 +8,8 @@ import {
   JoinColumn
 } from "typeorm";
 // 解決循環依賴問題 - 使用類型導入而不是值導入
-import type { User } from "./User";
-import type { Event } from "./Event";
+import  { User } from "./User";
+import  { Event } from "./Event";
 
 @Entity("checkins")
 export class Checkin {
@@ -44,11 +44,11 @@ export class Checkin {
   updated_at!: Date;
 
   // 關聯，使用字符串引用避免循環依賴
-  @ManyToOne("User", (user: User) => user.checkins)
+  @ManyToOne(() => User, (user) => user.checkins)
   @JoinColumn({ name: "user_id" })
   user!: User;
 
-  @ManyToOne("Event", (event: Event) => event.checkins)
+  @ManyToOne(() => Event, (event) => event.checkins)
   @JoinColumn({ name: "event_id" })
   event!: Event;
 }
