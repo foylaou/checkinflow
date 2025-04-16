@@ -37,6 +37,7 @@ export default function CreateEventPage() {
         setAdminId(data.admin.id);
       } catch (error) {
         // 重定向到登入頁面
+        Error(error as string);
         router.push('/login');
       }
     };

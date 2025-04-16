@@ -17,7 +17,7 @@ export const AppDataSource = new DataSource({
   password: process.env.DB_PASSWORD || "YourStrongPassword",
   database: process.env.DB_DATABASE || "checkinflow",
   synchronize: process.env.NODE_ENV !== "production", // 開發環境自動同步資料庫結構
-  logging: process.env.NODE_ENV !== "production",
+  // logging: process.env.NODE_ENV !== "production",
   entities: [Event, User, Admin, Checkin],
   options: {
     encrypt: true,                    // ✅ MSSQL 預設為加密，仍需保留

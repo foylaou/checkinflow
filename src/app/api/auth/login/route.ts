@@ -52,11 +52,11 @@ export async function POST(request: NextRequest) {
     });
 
     // 返回成功信息，不包含密碼
-    const { password: _, ...adminData } = admin;
+    delete (admin as any).password;
     return NextResponse.json({
       success: true,
       message: '登入成功',
-      admin: adminData
+      admin
     });
   } catch (error) {
     console.error('登入錯誤:', error);

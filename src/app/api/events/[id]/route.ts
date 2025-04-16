@@ -1,14 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getEventRepository, getCheckinRepository } from '@/lib/typeorm/db-utils';
 
-export async function GET(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function GET(request: NextRequest) {
   try {
-    const eventId = parseInt(params.id);
+    const url = new URL(request.url);
+    const segments = url.pathname.split('/');
+    const eventId = segments[segments.indexOf('events') + 1];
 
-    if (isNaN(eventId)) {
+    if (!eventId) {
       return NextResponse.json({ error: '無效的活動 ID' }, { status: 400 });
     }
 
@@ -29,14 +28,13 @@ export async function GET(
   }
 }
 
-export async function PUT(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function PUT(request: NextRequest) {
   try {
-    const eventId = parseInt(params.id);
+    const url = new URL(request.url);
+    const segments = url.pathname.split('/');
+    const eventId = segments[segments.indexOf('events') + 1];
 
-    if (isNaN(eventId)) {
+    if (!eventId) {
       return NextResponse.json({ error: '無效的活動 ID' }, { status: 400 });
     }
 
@@ -93,14 +91,13 @@ export async function PUT(
   }
 }
 
-export async function DELETE(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function DELETE(request: NextRequest) {
   try {
-    const eventId = parseInt(params.id);
+    const url = new URL(request.url);
+    const segments = url.pathname.split('/');
+    const eventId = segments[segments.indexOf('events') + 1];
 
-    if (isNaN(eventId)) {
+    if (!eventId) {
       return NextResponse.json({ error: '無效的活動 ID' }, { status: 400 });
     }
 
@@ -115,7 +112,11 @@ export async function DELETE(
     }
 
     // 檢查是否已有簽到記錄
-    const checkinCount = await checkinRepo.count({ where: { event_id: eventId } });
+    const checkinCount = await checkinRepo.count({
+      where: {
+        event: { id: eventId }
+      }
+    });
 
     if (checkinCount > 0) {
       return NextResponse.json({

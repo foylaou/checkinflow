@@ -6,7 +6,7 @@ import { getAdminRepository } from '@/lib/typeorm/db-utils';
 // JWT 密鑰，必須與登入 API 使用相同的密鑰
 const JWT_SECRET = process.env.JWT_SECRET || 'your-jwt-secret-key';
 
-export async function GET(request: NextRequest) {
+export async function GET(_request: NextRequest) {
   try {
     // 從 cookies 中取得 token
     const cookieStore =await cookies();

@@ -7,14 +7,14 @@ import {
   OneToMany,
   ManyToOne
 } from "typeorm";
-// 解決循環依賴問題 - 使用類型導入而不是值導入
+import { Generated } from "typeorm";
 import type { Checkin } from "./Checkin";
 import type { Admin } from "./Admin";
 
 @Entity("events")
 export class Event {
-  @PrimaryGeneratedColumn()
-  id!: number;
+  @PrimaryGeneratedColumn("uuid")
+  id!: string;  // 注意這裡改為 string 類型
 
   @Column({ length: 255, type: "varchar", nullable: false })
   name!: string;

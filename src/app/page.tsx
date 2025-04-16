@@ -143,11 +143,13 @@ export default function Home() {
                   <div className="flex flex-col items-center">
                     <div className="bg-white p-3 border rounded-lg mb-2">
                       {event.qrcode_url ? (
-                        <img
-                          src={event.qrcode_url}
-                          alt={`${event.name} QR Code`}
-                          className="w-40 h-40"
-                        />
+                      <Image
+                        src={`/qrcodes/event_qr_${event.id}.png`}
+                        alt="活動 QR Code"
+                        className="w-48 h-48"
+                        width={300}
+                        height={300}
+                      />
                       ) : (
                         <div className="w-40 h-40 flex items-center justify-center bg-gray-100">
                           <span className="text-gray-500 text-sm">QR Code 未提供</span>

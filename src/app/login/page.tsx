@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import axios from "axios";
 
@@ -25,9 +25,11 @@ export default function LoginPage() {
 
       // axios 成功響應直接返回 data
       const data = response.data;
-
+      if(data) {
+        router.push('/dashboard');
+      }
       // 登入成功，導向儀表板
-      router.push('/dashboard');
+
     } catch (error) {
       // axios 錯誤處理
       if (axios.isAxiosError(error) && error.response) {

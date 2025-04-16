@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getCheckinRepository, getEventRepository } from '@/lib/typeorm/db-utils';
-import { IsNull, Not } from 'typeorm';
 
 export async function GET(request: NextRequest) {
   try {
@@ -12,7 +11,6 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: '無效的活動 ID' }, { status: 400 });
     }
 
-    // 確認活動存在
     const eventRepo = await getEventRepository();
     const event = await eventRepo.findOne({ where: { id: eventId } });
 
@@ -20,47 +18,33 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: '找不到活動' }, { status: 404 });
     }
 
-    // 獲取簽到資料
     const checkinRepo = await getCheckinRepository();
-
-    // 總簽到人數
-    const total = await checkinRepo.count({
-      where: {
-        event: { id: eventId } // 使用關聯查詢
-      }
+    const checkins = await checkinRepo.find({
+      where: { event: { id: eventId } },
+      relations: ['user'], // 確保關聯用戶資訊被載入
+      order: { checkin_time: 'DESC' }
     });
-
-    // 如果活動需要簽退，獲取更詳細的統計
-    let checked_in = 0;
-    let checked_out = 0;
-
-    if (event.require_checkout) {
-      // 已簽到但尚未簽退的人數
-      checked_in = await checkinRepo.count({
-        where: {
-          event: { id: eventId },
-          checkout_time: IsNull()
-        }
-      });
-
-      // 已簽退的人數
-      checked_out = await checkinRepo.count({
-        where: {
-          event: { id: eventId },
-          checkout_time: Not(IsNull())
-        }
-      });
-    }
 
     return NextResponse.json({
-      total,
-      checked_in,
-      checked_out
+      checkins: checkins.map(checkin => ({
+        id: checkin.id,
+        user: {
+          name: checkin.user.name,
+          phone: checkin.user.phone,
+          company: checkin.user.company,
+          department: checkin.user.department
+        },
+        checkin_time: checkin.checkin_time,
+        checkout_time: checkin.checkout_time,
+        status: checkin.status,
+        geolocation: checkin.geolocation
+      }))
     });
+
   } catch (error) {
-    console.error('獲取活動統計錯誤:', error);
+    console.error('獲取簽到記錄錯誤:', error);
     return NextResponse.json({
-      error: '獲取活動統計失敗',
+      error: '獲取簽到記錄失敗',
       details: error instanceof Error ? error.message : String(error)
     }, { status: 500 });
   }
