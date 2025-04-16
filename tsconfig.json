@@ -10,6 +10,7 @@
     "strict": true,
     "noEmit": true,
     "esModuleInterop": true,
+     "keepNames": true,
    "module": "commonjs",
    "moduleResolution": "node",
     "resolveJsonModule": true,
