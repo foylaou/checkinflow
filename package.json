@@ -26,6 +26,7 @@
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "reflect-metadata": "^0.2.2",
+    "terser-webpack-plugin": "^5.3.14",
     "typeorm": "^0.3.22",
     "xlsx": "^0.18.5"
   },

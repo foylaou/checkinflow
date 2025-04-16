@@ -5,12 +5,10 @@
     "allowJs": true,
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
-
     "skipLibCheck": true,
     "strict": true,
     "noEmit": true,
     "esModuleInterop": true,
-     "keepNames": true,
    "module": "commonjs",
    "moduleResolution": "node",
     "resolveJsonModule": true,

@@ -29,10 +29,10 @@ const nextConfig: NextConfig = {
         headers: [
           {
             key: 'Cache-Control',
-            value: 'public, max-age=86400', // 24小時快取
+            value: 'public, max-age=86400',
           },
           {
-            key: 'X-Files-Debug', // 添加调试头
+            key: 'X-Files-Debug',
             value: 'Serving static files',
           },
         ],
@@ -42,14 +42,12 @@ const nextConfig: NextConfig = {
 
   webpack: (config, { isServer }) => {
     try {
-      // 确保 files 目录存在
       const filesPath = path.join(process.cwd(), 'files');
       const qrCodesPath = path.join(filesPath, 'qrcodes');
 
       console.log('Files path:', filesPath);
       console.log('QR Codes path:', qrCodesPath);
 
-      // 创建目录并记录详细信息
       if (!fs.existsSync(filesPath)) {
         fs.mkdirSync(filesPath, { recursive: true });
         console.log('Created files directory');
@@ -60,7 +58,6 @@ const nextConfig: NextConfig = {
         console.log('Created qrcodes directory');
       }
 
-      // 检查目录权限
       try {
         fs.accessSync(qrCodesPath, fs.constants.R_OK | fs.constants.W_OK);
         console.log('QR Codes directory is readable and writable');
@@ -68,14 +65,12 @@ const nextConfig: NextConfig = {
         console.error('Directory access error:', accessError);
       }
 
-      // 添加文件路径别名
       config.resolve.alias['@files'] = filesPath;
 
     } catch (error) {
       console.error('Error in webpack configuration:', error);
     }
 
-    // 处理 Node.js 模块相容性问题
     config.resolve.fallback = {
       ...config.resolve.fallback,
       fs: false,
@@ -83,10 +78,19 @@ const nextConfig: NextConfig = {
       os: false,
     };
 
+    if (isServer) {
+      const TerserPlugin = require("terser-webpack-plugin");
+      config.optimization.minimizer = [
+        new TerserPlugin({
+          terserOptions: {
+            keep_classnames: true,
+          },
+        }),
+      ];
+    }
+
     return config;
   },
-
-
 };
 
 export default nextConfig;
