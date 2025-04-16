@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/CheckinFlow.iml" filepath="$PROJECT_DIR$/.idea/CheckinFlow.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/checkinflow.iml" filepath="$PROJECT_DIR$/.idea/checkinflow.iml" />
     </modules>
   </component>
 </project>

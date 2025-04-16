@@ -6,22 +6,39 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "typeorm": "ts-node --transpile-only src/scripts/cli.ts",
+    "db:init": "ts-node --transpile-only src/scripts/init-db.ts",
+    "db:sync": "ts-node --transpile-only src/scripts/sync-db.ts",
+    "migration:generate": "ts-node --transpile-only ./node_modules/typeorm/cli.js migration:generate src/migration/InitialMigration -d src/lib/typeorm/data-source.ts"
   },
   "dependencies": {
+    "@types/jsonwebtoken": "^9.0.9",
+    "@types/qrcode": "^1.5.5",
+    "argon2": "^0.41.1",
+    "axios": "^1.8.4",
+    "dotenv": "^16.5.0",
+    "jsonwebtoken": "^9.0.2",
+    "mssql": "^11.0.1",
+    "next": "15.3.0",
+    "qrcode": "^1.5.4",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "next": "15.3.0"
+    "reflect-metadata": "^0.2.2",
+    "typeorm": "^0.3.22"
   },
   "devDependencies": {
-    "typescript": "^5",
-    "@types/node": "^20",
+    "@eslint/eslintrc": "^3",
+    "@tailwindcss/postcss": "^4",
+    "@types/mssql": "^9.1.7",
+    "@types/node": "^22.14.1",
     "@types/react": "^19",
     "@types/react-dom": "^19",
-    "@tailwindcss/postcss": "^4",
-    "tailwindcss": "^4",
     "eslint": "^9",
     "eslint-config-next": "15.3.0",
-    "@eslint/eslintrc": "^3"
+    "tailwindcss": "^4",
+    "ts-node": "^10.9.2",
+    "tsx": "^4.19.3",
+    "typescript": "^5.8.3"
   }
 }
