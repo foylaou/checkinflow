@@ -88,15 +88,30 @@ yarn install
 # 開發模式
 yarn dev
 
+# 初始化資料庫
+db:init
+
 # 環境變數
-cp .env.example .env.local
+# 設置構建參數和環境變數
+ENV DB_HOST=${DB_HOST}
+ENV DB_PORT=${DB_PORT}
+ENV DB_USERNAME=${DB_USERNAME}
+ENV DB_PASSWORD=${DB_PASSWORD}
+ENV DB_DATABASE=${DB_DATABASE}
+ENV LINE_CHANNEL_ID=${LINE_CHANNEL_ID}
+ENV LINE_CHANNEL_SECRET=${LINE_CHANNEL_SECRET}
+ENV LINE_CALLBACK_URL=${LINE_CALLBACK_URL}
+ENV NEXT_PUBLIC_LINE_CHANNEL_ID=${NEXT_PUBLIC_LINE_CHANNEL_ID}
+ENV NEXT_PUBLIC_LINE_CALLBACK_URL=${NEXT_PUBLIC_LINE_CALLBACK_URL}
+# Next.js 設定
+ENV NEXT_PUBLIC_BASE_URL=${NEXT_PUBLIC_BASE_URL}
+# JWT 設定
+ENV JWT_SECRET=${JWT_SECRET}
 
 
 ---
 
 ## 🧭 LINE 綁定 + 打卡流程圖（文字版）
-
-我先用文字簡化一下流程（你要我畫成圖我可以用 Mermaid 或畫圖）
 
 ### 使用者打卡流程：
 
@@ -116,3 +131,4 @@ cp .env.example .env.local
 儲存簽到紀錄（防止重複）
         ↓
 顯示簽到成功畫面 🎉
+```
