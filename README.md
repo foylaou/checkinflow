@@ -13,7 +13,7 @@ CheckinFlow 是一套結合 LINE Login 的活動簽到系統，支援活動 QRCo
 
 ## 🔧 技術架構
 
-- 前端框架：Next.js 14 (App Router)
+- 前端框架：Next.js 15.3 (App Router)
 - 狀態管理：Zustand / SWR
 - 後端 API：Next.js API Routes / RESTful
 - 認證機制：LINE Login 2.1（OAuth2）
