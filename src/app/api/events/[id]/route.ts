@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getEventRepository, getCheckinRepository } from '@/lib/typeorm/db-utils';
+import {getDataSource} from "@/lib/typeorm/data-source";
 
 export async function GET(request: NextRequest) {
   try {
@@ -111,26 +112,21 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json({ error: '找不到活動' }, { status: 404 });
     }
 
-    // 檢查是否已有簽到記錄
-    const checkinCount = await checkinRepo.count({
-      where: {
-        event: { id: eventId }
-      }
-    });
+    // 使用原始SQL查詢來刪除相關的簽到記錄
+    const dataSource = await getDataSource();
+    const checkinResult = await dataSource.createQueryBuilder()
+      .delete()
+      .from('checkins')
+      .where("event_id = :eventId", { eventId: event.id })
+      .execute();
 
-    if (checkinCount > 0) {
-      return NextResponse.json({
-        error: '此活動已有簽到記錄，無法刪除',
-        checkinCount
-      }, { status: 409 });
-    }
-
-    // 執行刪除
-    await eventRepo.delete(eventId);
+    // 刪除活動
+    await eventRepo.remove(event);
 
     return NextResponse.json({
       success: true,
-      message: '活動已成功刪除'
+      message: '活動已成功刪除',
+      deletedCheckins: checkinResult.affected || 0
     });
   } catch (error) {
     console.error('刪除活動錯誤:', error);
