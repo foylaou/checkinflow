@@ -32,67 +32,70 @@ interface EventPageClientProps {
 export default function EventPageClient({ eventId }: EventPageClientProps) {
   const [event, setEvent] = useState<EventDetails | null>(null);
   const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [userLoading, setUserLoading] = useState(true);  // 用戶載入狀態
+  const [eventLoading, setEventLoading] = useState(true); // 活動載入狀態
   const [error, setError] = useState<string | null>(null);
   const [checkinStatus, setCheckinStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
   const [isLineLoggedIn, setIsLineLoggedIn] = useState(false);
 
-useEffect(() => {
-  const checkLoginStatus = async () => {
-    try {
-      // 同時檢查 localStorage 和 cookie
-      const userIdFromLocalStorage = localStorage.getItem('userId');
-      const userIdFromCookie = document.cookie
-        .split('; ')
-        .find(row => row.startsWith('userId='))
-        ?.split('=')[1];
+  // 檢查用戶是否已登入
+  useEffect(() => {
+    const checkLoginStatus = async () => {
+      try {
+        // 同時檢查 localStorage 和 cookie
+        const userIdFromLocalStorage = localStorage.getItem('userId');
+        const userIdFromCookie = document.cookie
+          .split('; ')
+          .find(row => row.startsWith('userId='))
+          ?.split('=')[1];
 
-      const userId = userIdFromLocalStorage || userIdFromCookie;
+        const userId = userIdFromLocalStorage || userIdFromCookie;
 
-      if (userId) {
-        try {
-          const response = await fetch('/api/check', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ userId })
-          });
+        if (userId) {
+          try {
+            const response = await fetch('/api/check', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ userId })
+            });
 
-          if (response.ok) {
-            console.log(response);
-            const userData = await response.json();
-            setUser(userData.user);
-            setIsLineLoggedIn(true);
+            if (response.ok) {
+              console.log(response);
+              const userData = await response.json();
+              setUser(userData.user);
+              setIsLineLoggedIn(true);
 
-            // 同步 localStorage 和 cookie
-            localStorage.setItem('userId', userId);
-            document.cookie = `userId=${userId}; path=/; max-age=${7 * 24 * 60 * 60}`;
-          } else {
-            // 清除所有登入痕跡
+              // 同步 localStorage 和 cookie
+              localStorage.setItem('userId', userId);
+              document.cookie = `userId=${userId}; path=/; max-age=${7 * 24 * 60 * 60}`;
+            } else {
+              // 清除所有登入痕跡
+              localStorage.removeItem('userId');
+              document.cookie = 'userId=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+              setIsLineLoggedIn(false);
+            }
+          } catch (verifyError) {
+            console.error('用戶驗證失敗:', verifyError);
             localStorage.removeItem('userId');
             document.cookie = 'userId=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
             setIsLineLoggedIn(false);
           }
-        } catch (verifyError) {
-          console.error('用戶驗證失敗:', verifyError);
-          localStorage.removeItem('userId');
-          document.cookie = 'userId=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
-          setIsLineLoggedIn(false);
         }
+      } catch (error) {
+        console.error('檢查登入狀態失敗:', error);
+      } finally {
+        setUserLoading(false); // 只設置用戶載入完成
       }
-    } catch (error) {
-      console.error('檢查登入狀態失敗:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
+    };
 
-  checkLoginStatus();
-}, []);
+    checkLoginStatus();
+  }, []);
 
   // 獲取活動詳情
   useEffect(() => {
     const fetchEventDetails = async () => {
       try {
+        setEventLoading(true); // 開始載入活動
         const response = await fetch(`/api/events/${eventId}`);
         if (!response.ok) {
           throw new Error('無法獲取活動資訊');
@@ -103,40 +106,25 @@ useEffect(() => {
         setError('獲取活動資訊失敗');
         console.error(error);
       } finally {
-        setLoading(false);
+        setEventLoading(false); // 活動載入完成
       }
     };
 
     fetchEventDetails();
   }, [eventId]);
 
-  const _fetchUserData = async (userId: string) => {
-    try {
-      const response = await fetch(`/api/users/${userId}`);
-      if (!response.ok) {
-        throw new Error('無法獲取用戶資料');
-      }
-      const data = await response.json();
-      setUser(data.user);
-    } catch (error) {
-      console.error('獲取用戶資料失敗:', error);
-      localStorage.removeItem('userId');
-      setIsLineLoggedIn(false);
+  const handleLineLogin = () => {
+    const channelId = process.env.NEXT_PUBLIC_LINE_CHANNEL_ID;
+    const callbackUrl = process.env.NEXT_PUBLIC_LINE_CALLBACK_URL;
+
+    if (!channelId || !callbackUrl) {
+      setError('LINE 登入設定不完整，請聯絡管理員');
+      return;
     }
+
+    const lineLoginUrl = `https://access.line.me/oauth2/v2.1/authorize?response_type=code&client_id=${channelId}&redirect_uri=${encodeURIComponent(callbackUrl)}&state=${eventId}&scope=openid%20profile`;
+    window.location.href = lineLoginUrl;
   };
-
-    const handleLineLogin = () => {
-      const channelId = process.env.NEXT_PUBLIC_LINE_CHANNEL_ID;
-      const callbackUrl = process.env.NEXT_PUBLIC_LINE_CALLBACK_URL;
-
-      if (!channelId || !callbackUrl) {
-        setError('LINE 登入設定不完整，請聯絡管理員');
-        return;
-      }
-
-      const lineLoginUrl = `https://access.line.me/oauth2/v2.1/authorize?response_type=code&client_id=${channelId}&redirect_uri=${callbackUrl}&state=${eventId}&scope=openid%20profile`;
-      window.location.href = lineLoginUrl;
-    };
 
   // 檢查活動是否在有效時間內
   const isEventAvailable = () => {
@@ -167,7 +155,6 @@ useEffect(() => {
           });
           geolocation = `${position.coords.latitude},${position.coords.longitude}`;
         } catch (geoError) {
-          Error(geoError as string)
           throw new Error('無法獲取位置資訊，請允許位置存取權限');
         }
       }
@@ -195,14 +182,20 @@ useEffect(() => {
     }
   };
 
-  if (loading) {
+  // 整體載入中狀態
+  const isLoading = userLoading || eventLoading;
+
+  // 載入中顯示載入動畫
+  if (isLoading) {
     return <LoadingSpinner />;
   }
 
+  // 如果有錯誤且不是打卡錯誤，則顯示錯誤訊息
   if (error && checkinStatus !== 'error') {
     return <ErrorMessage message={error} />;
   }
 
+  // 如果活動不存在，顯示對應訊息
   if (!event) {
     return (
       <div className="flex justify-center items-center min-h-screen p-4">
@@ -214,10 +207,12 @@ useEffect(() => {
     );
   }
 
+  // 打卡成功顯示成功畫面
   if (checkinStatus === 'success') {
     return <CheckinSuccess eventName={event.name} />;
   }
 
+  // 正常顯示活動資訊
   return (
     <div className="container mx-auto px-4 py-8 max-w-lg">
       <div className="bg-white rounded-lg shadow-md overflow-hidden">
