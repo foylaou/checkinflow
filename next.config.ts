@@ -4,7 +4,7 @@ const fs = require('fs');
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
-
+  output: "standalone",
   serverExternalPackages: ['puppeteer-core', 'puppeteer'],
 
   experimental: {
