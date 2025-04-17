@@ -1,3 +1,4 @@
+//src/app/api/auth/line/callback/route.ts
 import {NextRequest, NextResponse} from "next/server";
 import axios from "axios";
 import {getUserRepository} from "@/lib/typeorm/db-utils";
@@ -31,17 +32,20 @@ export async function GET(request: NextRequest) {
     const userRepo = await getUserRepository();
     const user = await userRepo.findOne({ where: { line_user_id: lineUserId } });
 
+    // 使用環境變數中定義的基礎 URL
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
+
     // 確定重定向的 URL
     let redirectUrl;
     if (user) {
       // 已註冊用戶直接到活動頁面
-      redirectUrl = `/event/${state || ''}`;
+      redirectUrl = `${baseUrl}/event/${state || ''}`;
     } else {
       // 新用戶到註冊頁面
-      redirectUrl = `/register?lineId=${lineUserId}&eventId=${state || ''}`;
+      redirectUrl = `${baseUrl}/register?lineId=${lineUserId}&eventId=${state || ''}`;
     }
 
-    const response = NextResponse.redirect(new URL(redirectUrl, request.url));
+    const response = NextResponse.redirect(redirectUrl);
 
     // 設置 cookie，包括在新用戶和已存在用戶的情況下
     if (user) {
