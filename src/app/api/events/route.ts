@@ -1,23 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getEventRepository } from '@/lib/typeorm/db-utils';
 import QRCode from 'qrcode';
-import * as fs from 'fs/promises';
-import * as path from 'path';
+import { saveFile } from '@/lib/storage';
 
 // 日誌函數
 function logWithTimestamp(message: string, ...args: any[]) {
   console.log(`[${new Date().toISOString()}] ${message}`, ...args);
-}
-
-// 確保目錄存在
-async function ensureDirectoryExists(dirPath: string) {
-  try {
-    await fs.mkdir(dirPath, { recursive: true });
-    logWithTimestamp(`目錄創建成功: ${dirPath}`);
-  } catch (error) {
-    logWithTimestamp(`目錄創建失敗: ${dirPath}`, error);
-    throw error;
-  }
 }
 
 // 獲取所有活動（保持不變）
@@ -106,43 +94,19 @@ export async function POST(request: NextRequest) {
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
     const eventUrl = `${baseUrl}/event/${savedEvent.id}`;
 
-    // 確保 QR Code 目錄存在
-    const qrCodeDir = path.join(process.cwd(), 'public', 'qrcodes');
-
     try {
-      // 創建目錄（包括巢狀目錄）
-      await ensureDirectoryExists(qrCodeDir);
+      // 生成 QR Code 並轉換為 Buffer
+      const qrCodeBuffer = await generateQRCodeBuffer(eventUrl);
 
-      // 詳細目錄日誌
-      logWithTimestamp('QR Code 目錄:', qrCodeDir);
-      logWithTimestamp('當前工作目錄:', process.cwd());
-    } catch (dirError) {
-      logWithTimestamp('QR Code 目錄創建失敗:', dirError);
-      return NextResponse.json({
-        success: false,
-        error: 'QR Code 目錄創建失敗',
-        details: dirError instanceof Error ? dirError.message : String(dirError)
-      }, { status: 500 });
-    }
+      // 使用通用的儲存服務保存檔案
+      const qrCodeFileName = `event_qr_${savedEvent.id}.png`;
+      const qrCodeUrl = await saveFile(qrCodeFileName, qrCodeBuffer, 'qrcodes');
 
-    // 生成 QR Code 並儲存為文件
-    const qrCodeFileName = `event_qr_${savedEvent.id}.png`;
-    const qrCodeFilePath = path.join(qrCodeDir, qrCodeFileName);
+      logWithTimestamp('QR Code 生成成功，URL:', qrCodeUrl);
 
-    try {
-      // 生成 QR Code 並儲存為文件
-      await QRCode.toFile(qrCodeFilePath, eventUrl, {
-        errorCorrectionLevel: 'H',
-        width: 300
-      });
-
-      logWithTimestamp('QR Code 生成成功:', qrCodeFilePath);
-
-      // 更新事件的 QR Code URL（存儲相對路徑）
-      savedEvent.qrcode_url = `/qrcodes/${qrCodeFileName}`;
+      // 更新事件的 QR Code URL
+      savedEvent.qrcode_url = qrCodeUrl;
       await eventRepo.save(savedEvent);
-
-      logWithTimestamp('事件 QR Code URL:', savedEvent.qrcode_url);
     } catch (qrError) {
       logWithTimestamp('QR Code 生成錯誤:', qrError);
 
@@ -167,4 +131,21 @@ export async function POST(request: NextRequest) {
       details: error instanceof Error ? error.message : String(error)
     }, { status: 500 });
   }
+}
+
+// 輔助函數：生成 QR Code 並返回 Buffer
+async function generateQRCodeBuffer(url: string): Promise<Buffer> {
+  return new Promise((resolve, reject) => {
+    QRCode.toBuffer(url, {
+      errorCorrectionLevel: 'H',
+      width: 300,
+      margin: 1
+    }, (err, buffer) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(buffer);
+      }
+    });
+  });
 }

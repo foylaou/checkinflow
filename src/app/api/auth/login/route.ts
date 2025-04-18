@@ -36,7 +36,7 @@ export async function POST(request: NextRequest) {
 
     // 生成 JWT
     const token = sign(
-      { id: admin.id, username: admin.username, role: 'admin' },
+      { id: admin.id, username: admin.username, role: admin.name },
       JWT_SECRET,
       { expiresIn: '8h' }
     );

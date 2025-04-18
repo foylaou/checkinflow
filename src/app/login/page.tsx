@@ -3,13 +3,14 @@
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import axios from "axios";
+import {BaseStore} from "@/store/baseStore";
 
 export default function LoginPage() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const router = useRouter();
-
+  const {checkLogin}  = BaseStore();
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
@@ -25,8 +26,11 @@ export default function LoginPage() {
 
       // axios 成功響應直接返回 data
       const data = response.data;
+
       if(data) {
+        checkLogin();
         router.push('/dashboard');
+
       }
       // 登入成功，導向儀表板
 

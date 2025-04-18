@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import {BaseStore} from "@/store/baseStore";
 
 interface Event {
   id: number;
@@ -18,6 +19,7 @@ export default function Home() {
   const [events, setEvents] = useState<Event[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
 
   useEffect(() => {
     const fetchEvents = async () => {
@@ -60,23 +62,7 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* 導航欄 */}
-      <nav className="bg-white shadow">
-        <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-          <div className="flex items-center">
-            <h1 className="text-2xl font-bold text-indigo-600">CheckinFlow</h1>
-            <span className="ml-2 text-gray-500">活動簽到系統</span>
-          </div>
-          <Link
-            href="/login"
-            className="px-4 py-2 text-sm bg-indigo-600 hover:bg-indigo-700 text-white rounded-md"
-          >
-            管理員登入
-          </Link>
-        </div>
-      </nav>
-
+<>
       {/* 主要內容 */}
       <main className="container mx-auto px-4 py-8">
         <div className="mb-8 text-center">
@@ -144,7 +130,7 @@ export default function Home() {
                     <div className="bg-white p-3 border rounded-lg mb-2">
                       {event.qrcode_url ? (
                       <Image
-                        src={`/qrcodes/event_qr_${event.id}.png`}
+                        src={`/files/qrcodes/event_qr_${event.id}.png`}
                         alt="活動 QR Code"
                         className="w-48 h-48"
                         width={300}
@@ -170,16 +156,6 @@ export default function Home() {
           </div>
         )}
       </main>
-
-      {/* 頁尾 */}
-      <footer className="bg-white border-t mt-12 py-8">
-        <div className="container mx-auto px-4">
-          <div className="text-center text-gray-500 text-sm">
-            <p>© {new Date().getFullYear()} CheckinFlow 活動簽到系統</p>
-            <p className="mt-2">提供簡易、便捷的活動簽到管理解決方案</p>
-          </div>
-        </div>
-      </footer>
-    </div>
+      </>
   );
 }

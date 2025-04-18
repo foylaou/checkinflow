@@ -22,7 +22,7 @@ export default function QRCodeSection({
         {event.qrcode_url ? (
           <div className="bg-white p-2 border rounded mb-4">
             <Image
-              src={`/qrcodes/event_qr_${event.id}.png`}
+              src={`/files/qrcodes/event_qr_${event.id}.png`}
               alt="活動 QR Code"
               className="w-48 h-48"
               width={300}

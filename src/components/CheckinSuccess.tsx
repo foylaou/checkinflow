@@ -12,9 +12,9 @@ export default function CheckinSuccess({ eventName }: CheckinSuccessProps) {
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
           </svg>
         </div>
-        <h2 className="text-2xl font-bold text-green-700 mb-2">打卡成功！</h2>
+        <h2 className="text-2xl font-bold text-green-700 mb-2">簽到成功！</h2>
         <p className="text-gray-600 mb-6">您已成功簽到「{eventName}」活動</p>
-        <p className="text-sm text-gray-500">打卡時間: {new Date().toLocaleString()}</p>
+        <p className="text-sm text-gray-500">簽到時間: {new Date().toLocaleString()}</p>
       </div>
     </div>
   );

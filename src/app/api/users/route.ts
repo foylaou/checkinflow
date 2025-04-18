@@ -8,7 +8,7 @@ export async function POST(request: NextRequest) {
 
     // 更詳細的驗證
     if (!line_user_id) {
-      return NextResponse.json({ error: 'LINE User ID 不能為空' }, { status: 400 });
+      return NextResponse.json({ error: 'LINE user ID 不能為空' }, { status: 400 });
     }
 
     // 去除空白並再次驗證
