@@ -3,7 +3,9 @@ import "reflect-metadata"; // ✅
 import { initializeDatabase } from "../lib/typeorm/data-source";
 import { Admin } from "../lib/typeorm/entities/Admin";
 import argon2 from "argon2";
+import * as dotenv from "dotenv";
 
+dotenv.config({ path: ".env.local" }); // 可省略 path 預設也會讀取
 const initializeAdminAccount = async () => {
   try {
     // 初始化數據庫連接
@@ -17,10 +19,9 @@ const initializeAdminAccount = async () => {
       return;
     }
 
-    // 創建默認管理員帳號
     const defaultAdmin = new Admin();
-    defaultAdmin.username = "foylaou0326";
-    const hashedPassword = await argon2.hash("t0955787053S", {
+    defaultAdmin.username =  process.env.USERNAME||"admin";
+    const hashedPassword = await argon2.hash(process.env.PASSWORD||"admin1532698", {
       type: argon2.argon2id,
       timeCost: 2,
       memoryCost: 32768,
